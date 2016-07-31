@@ -1,5 +1,6 @@
 import { onGameRequest, onGameResponse } from 'views/redux'
 import { remote } from 'electron'
+import fs from 'fs-extra'
 
 const proxy = remote.require('./lib/proxy')
 
@@ -43,6 +44,20 @@ const parseResponses = () => {
   let [method, [domain, path, url], body, postBody] = responses.shift()
   if (['/kcs/mainD2.swf', '/kcsapi/api_start2', '/kcsapi/api_get_member/basic'].includes(path)) {
     handleProxyGameStart()
+  }
+  if (path == '/kcsapi/api_start2') {
+    var dir_path = window.ROOT + '/cache'
+    fs.mkdirs(dir_path)
+    if (body) {
+      fs.outputFile(dir_path + '/START2.json', JSON.stringify(body))
+    }
+  }
+  if (path == '/kcsapi/api_port/port') {
+    var dir_path = window.ROOT + '/cache'
+    fs.mkdirs(dir_path)
+    if (body) {
+      fs.outputFile(dir_path + '/PORT.json', JSON.stringify(body))
+    }
   }
   if (!isGameApi(path)) {
     return
